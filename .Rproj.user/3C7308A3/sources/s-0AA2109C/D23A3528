@@ -1,0 +1,26 @@
+{
+    "id": "D23A3528",
+    "path": "~/Documents/git/exploratory_analysis/Birth_rate_analysis/Script/analyse.R",
+    "project_path": "Script/analyse.R",
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1623605716996.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "38,21",
+        "scrollLine": "24"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1623611646,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1623611646492,
+    "read_only": false,
+    "read_only_alternatives": []
+}
