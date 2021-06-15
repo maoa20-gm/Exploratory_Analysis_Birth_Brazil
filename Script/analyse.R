@@ -4,12 +4,15 @@
 
 library(tidyverse)
 library(janitor)
+library(psych)
+library(corrplot)
+
 
 #--------------------------------------------------------------------#
 # Reading                                                            #
 #--------------------------------------------------------------------#
 
-birth <- read.csv("Datasets/PE_TODOS.csv")
+birth <- read.csv("Datasets/PE_TODOS2.csv")
 
 
 #--------------------------------------------------------------------#
@@ -35,7 +38,91 @@ birth %>%
 #--------------------------------------------------------------------#
   
 cantidad <- birth %>% 
-  mutate(key = c(1:492569)) %>% 
-  group_by(key, ano) 
+  group_by(data_nasc,ano_nasc) %>% 
+  count(data_nasc,sort = F)
+  
+
+ggplot(cantidad, aes(x = ano_nasc, y = n, color = ano_nasc)) +
+  geom_boxplot() +
+  labs( x = "Anos",
+       y = "Numero de nascidos vivos")+
+  geom_jitter() +
+  scale_color_brewer(type = "qual", palette = 2) +
+  theme_minimal() +
+  theme(legend.position = "none")
 
 
+#--------------------------------------------------------------------#
+#                 Analise por escolaridade                           #
+#--------------------------------------------------------------------#
+
+cantidad <- birth %>% 
+  group_by(data_nasc,ano_nasc, escmae) %>% 
+  count(data_nasc,sort = F)
+
+ggplot(cantidad, aes(x = escmae, y = n, color = escmae)) +
+  geom_boxplot() +
+  labs( x = "Escolaridade da mae",
+        y = "Numero de nascidos vivos")+
+  scale_color_brewer(type = "qual", palette = 2) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+
+#--------------------------------------------------------------------#
+#                 Analise por estado civil                           #
+#--------------------------------------------------------------------#
+
+cantidad <- birth %>% 
+  group_by(data_nasc,ano_nasc, estcivmae) %>% 
+  count(data_nasc,sort = F)
+
+ggplot(cantidad, aes(x = estcivmae, y = n, color = estcivmae)) +
+  geom_boxplot() +
+  labs( x = "Estado civil da mae",
+        y = "Numero de nascidos vivos")+
+  scale_color_brewer(type = "qual", palette = 2) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+
+#--------------------------------------------------------------------#
+#                 Analise por raca da mae                            #
+#--------------------------------------------------------------------#
+
+cantidad <- birth %>% 
+  group_by(data_nasc,ano_nasc, racacor) %>% 
+  count(data_nasc,sort = F)
+
+ggplot(cantidad, aes(x = racacor, y = n, color = racacor)) +
+  geom_boxplot() +
+  labs( x = "Estado civil da mae",
+        y = "Numero de nascidos vivos")+
+  scale_color_brewer(type = "qual", palette = 2) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+#--------------------------------------------------------------------#
+#                 Correlacion                                        #
+#--------------------------------------------------------------------#
+
+numeric_variables <- birth[ , purrr::map_lgl(birth, is.numeric)]
+numeric_variables <- numeric_variables[1:9]
+
+corr <- abs(cor(numeric_variables))
+
+colors <- dmat.color(corr)
+order <- order.single(corr)
+
+birth %>% 
+  mutate(classe = as.character(classe)) %>% 
+  mutate(classe = as.factor(classe)) -> birth
+  
+
+corrplot(cor(numeric_variables),
+         method = "circle",       
+         order = "hclust",         
+         hclust.method = "ward.D",         
+         rect.col = 3,            
+         rect.lwd = 3,
+         addCoef.col = "white")  

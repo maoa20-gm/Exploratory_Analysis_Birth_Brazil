@@ -1,0 +1,68 @@
+---
+title: "Relatorio"
+author: "Miguel A. Ortiz Acuna"
+date: "6/14/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(janitor)
+library(corrplot)
+library(knitr)
+```
+
+
+```{r loading, echo = FALSE}
+birth <- read.csv("Datasets/PE_TODOS2.csv")
+
+```
+
+
+```{r summary, echo = FALSE}
+birth %>%
+  clean_names() -> birth # Eu coloquei os nomes em minuscula, nao gosto as maisculas
+
+cols.fact <- c("ano_nasc", "estcivmae" , "escmae" , "racacor")  
+
+birth[cols.fact] <- sapply(birth[cols.fact], as.character)
+
+birth %>% 
+  mutate_if(is.character, as.factor) -> birth
+
+```
+
+## Boxplot anos vs numero de nascidos vivos diarios
+
+```{r}
+cantidad <- birth %>% 
+  group_by(data_nasc,ano_nasc) %>% 
+  count(data_nasc,sort = F)
+  
+
+ggplot(cantidad, aes(x = ano_nasc, y = n, color = ano_nasc)) +
+  geom_boxplot() +
+  labs(y = "Numero de nascidos vivos diarios")+
+  geom_jitter() +
+  scale_color_brewer(type = "qual", palette = 2) +
+  theme_minimal() +
+  theme(legend.position = "none",
+        axis.title.x = element_blank())
+```
+## Boxplot Escolaridade da mae
+
+```{r}
+cantidad <- birth %>% 
+  group_by(data_nasc,ano_nasc, escmae) %>% 
+  count(data_nasc,sort = F)
+
+ggplot(cantidad, aes(x = escmae, y = n, color = escmae)) +
+  geom_boxplot() +
+  labs( x = "Escolaridade da mae",
+        y = "Numero de nascidos vivos diarios")+
+  scale_color_brewer(type = "qual", palette = 2) +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
