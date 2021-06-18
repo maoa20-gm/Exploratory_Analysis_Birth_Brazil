@@ -1,0 +1,142 @@
+---
+title: "Reporte"
+author: "Miguel A. Ortiz Acuna"
+date: "6/18/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(janitor)
+library(lubridate)
+library(corrplot)
+library(gclus)
+```
+
+```{r, echo=FALSE}
+birth <- read.csv("Datasets/PE_TODOS2.csv")
+```
+
+
+```{r summary, echo = FALSE}
+birth %>%
+  clean_names() -> birth # Eu coloquei os nomes em minuscula, nao gosto as maisculas
+
+cols.fact <- c("ano_nasc", "estcivmae" , "escmae" , "racacor")  
+
+birth[cols.fact] <- sapply(birth[cols.fact], as.character)
+
+birth %>% 
+  mutate_if(is.character, as.factor) %>% 
+  mutate(data_nasc = mdy(data_nasc))-> birth
+
+
+birth %>% 
+  mutate(classe = as.character(classe)) %>% 
+  mutate(classe = as.factor(classe)) -> birth
+
+
+
+
+numeric_variables <- birth[ , purrr::map_lgl(birth, is.numeric)]
+numeric_variables <- numeric_variables[1:9]
+```
+
+
+# Statistics 
+
+```{r, echo=FALSE}
+statistics <- do.call(data.frame, 
+                      list(Mean = apply(numeric_variables, 2, mean),
+                           Std.dev = apply(numeric_variables, 2, sd),
+                           Min = apply(numeric_variables, 2, min),
+                           Quantile_1st = apply(numeric_variables, 2, function(x){quantile(x, probs = 0.25)}),
+                           Median = apply(numeric_variables, 2, median),
+                           Quantile_3rd = apply(numeric_variables, 2, function(x){quantile(x, probs = 0.75)}),
+                           Max = apply(numeric_variables, 2, max)))
+
+statistics <- t(statistics)
+knitr::kable(statistics)
+```
+
+## Numero de nascidos vivos por ano
+
+```{r}
+cantidad <- birth %>% 
+  group_by(data_nasc,ano_nasc) %>% 
+  count(data_nasc,sort = F) 
+  
+
+ggplot(cantidad, aes(x = ano_nasc, y = n, color = ano_nasc)) +
+  geom_boxplot() +
+  geom_jitter() +
+  scale_color_brewer(type = "qual", palette = 2) +
+  theme_minimal() +
+  theme(legend.position = "none")+
+    labs( x = "",
+       y = "Numero de nascidos vivos")
+
+```
+
+## Idade da mae comportamento
+
+```{r}
+ggplot(birth, aes(x=idademae)) + 
+  geom_histogram(aes(y=..density..), colour="black", fill="white")+
+  geom_density(alpha=.2, fill="#FF6666")+
+  scale_x_continuous(limits = c(9,45), breaks = seq(10, 46,2))+
+  theme_classic()+
+  labs(x ="")
+  
+```
+## Variaveis discretas 
+
+
+
+
+
+## Variaveis numericas 
+
+```{r}
+birth %>% 
+  gather(qtdfilvivo:qtdpartces, key = "Diagnostico", value = "value") %>% 
+  mutate(Diagnostico = as.factor(Diagnostico))-> resp
+
+ggplot(resp, aes(x = reorder(Diagnostico, value), y = value, fill = Diagnostico)) +
+  geom_boxplot(show.legend = FALSE)+
+  theme_classic()+
+  theme(axis.title.x = element_blank())+
+  labs(y = "valores")
+
+```
+
+
+## Correlação de Spearman 
+
+```{r}
+
+birth[cols.fact] <- sapply(birth[cols.fact], as.numeric)
+numeric_variables <- birth[ , purrr::map_lgl(birth, is.numeric)]
+numeric_variables <- numeric_variables[,-1]
+
+corr <- abs(cor(numeric_variables, method = "spearman"))
+
+colors <- dmat.color(corr)
+order <- order.single(corr)
+
+birth %>% 
+  mutate(classe = as.character(classe)) %>% 
+  mutate(classe = as.factor(classe)) -> birth
+  
+
+corrplot(cor(numeric_variables),
+         method = "circle",       
+         order = "hclust",         
+         hclust.method = "ward.D",
+         addrect = 2,
+         rect.col = 2,            
+         rect.lwd = 2,
+         addCoef.col = "white")  
+```
+

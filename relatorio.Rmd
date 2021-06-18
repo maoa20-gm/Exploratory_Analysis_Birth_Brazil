@@ -18,7 +18,6 @@ library(gclus)
 
 ```{r loading, echo = FALSE}
 birth <- read.csv("Datasets/PE_TODOS2.csv")
-
 ```
 
 
@@ -42,7 +41,6 @@ birth %>%
 
 ```{r}
 summary(birth)
-
 ```
 
 ```{r}
@@ -52,10 +50,6 @@ ggplot(birth, aes(qtdfilvivo, qtdgestant, color = classe, size = 0.5, alpha = 0.
   scale_color_manual(values = c("#00AFBB", "#E7B800"))+
   theme_bw()
   
-
-
-
-
 ```
 
 
