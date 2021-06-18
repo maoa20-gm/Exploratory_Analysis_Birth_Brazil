@@ -11,6 +11,8 @@ library(tidyverse)
 library(janitor)
 library(corrplot)
 library(knitr)
+library(lubridate)
+library(gclus)
 ```
 
 
@@ -29,9 +31,83 @@ cols.fact <- c("ano_nasc", "estcivmae" , "escmae" , "racacor")
 birth[cols.fact] <- sapply(birth[cols.fact], as.character)
 
 birth %>% 
-  mutate_if(is.character, as.factor) -> birth
+  mutate_if(is.character, as.factor) %>% 
+  mutate(data_nasc = mdy(data_nasc))-> birth
+
+
+birth %>% 
+  mutate(classe = as.character(classe)) %>% 
+  mutate(classe = as.factor(classe)) -> birth
+```
+
+```{r}
+summary(birth)
 
 ```
+
+```{r}
+
+ggplot(birth, aes(qtdfilvivo, qtdgestant, color = classe, size = 0.5, alpha = 0.6)) +
+  geom_jitter()+
+  scale_color_manual(values = c("#00AFBB", "#E7B800"))+
+  theme_bw()
+  
+
+
+
+
+```
+
+
+## Fazer glosario com a descrição de cada variavel 
+
+
+Porque o peso nao?
+
+
+
+Mensprenat = 	Mês de gestação em que iniciou o pré‐natal
+
+```{r}
+total <- birth %>% 
+  ungroup() %>% 
+  group_by(escmae) %>% 
+  count(sort = F)
+
+ggplot(birth, aes(x = factor(0), as.numeric(escmae))) +
+    geom_boxplot() + 
+    scale_x_discrete(breaks = NULL) +
+    xlab(NULL)
+
+ggplot(birth, aes(x = mesprenat)) +
+  geom_boxplot() +
+  labs( x = "Escolaridade da mae",
+        y = "Numero de nascidos vivos diarios")+
+  scale_color_brewer(type = "qual", palette = 2) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+```
+
+
+```{r}
+ggplot(birth, aes(x=idademae))+
+  geom_density(color="darkblue", fill="lightblue")
+
+ggplot(birth, aes(y= as.numeric(mesprenat), x =data_nasc))+
+  geom_line()
+
+ggplot(birth, aes(x=mesprenat))+
+  geom_density(color="darkblue", fill="lightblue") 
+
+# mesprenat discreta
+# consultas categorica
+# gestacao discreta
+
+
+
+```
+
 
 ## Boxplot anos vs numero de nascidos vivos diarios
 
@@ -50,6 +126,8 @@ ggplot(cantidad, aes(x = ano_nasc, y = n, color = ano_nasc)) +
   theme(legend.position = "none",
         axis.title.x = element_blank())
 ```
+
+
 ## Boxplot Escolaridade da mae
 
 ```{r}
@@ -64,5 +142,31 @@ ggplot(cantidad, aes(x = escmae, y = n, color = escmae)) +
   scale_color_brewer(type = "qual", palette = 2) +
   theme_minimal() +
   theme(legend.position = "none")
+```
+
+
+```{r}
+numeric_variables <- birth[ , purrr::map_lgl(birth, is.numeric)]
+numeric_variables <- numeric_variables[1:9]
+birth %>% 
+  mutate(classe = as.character(classe)) %>% 
+  mutate(classe = as.factor(classe)) -> birth
+```
+
+```{r}
+birth %>% 
+  group_by(classe) %>% 
+  count(classe,sort = F) -> unbalanced
+
+ggplot(unbalanced, mapping = aes(x = classe, y= n, fill= classe))+
+  geom_col(show.legend = F)+ 
+  scale_y_continuous(breaks = seq(0,500000, 100000),labels = scales::comma)+
+  scale_x_discrete("classe", labels= c("Não prematuro", "Prematuro"))+
+  geom_text(aes(label = n), vjust = -0.5)+
+  labs(y = "Contagem")+
+  theme_classic()+
+  theme(axis.title.x = element_blank())
+  
+
 ```
 

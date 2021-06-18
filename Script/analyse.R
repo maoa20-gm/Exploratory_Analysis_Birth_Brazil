@@ -2,6 +2,7 @@
 # Dependencies                                                       #
 #--------------------------------------------------------------------#
 
+library(renv)
 library(tidyverse)
 library(janitor)
 library(psych)
@@ -39,7 +40,7 @@ birth %>%
   
 cantidad <- birth %>% 
   group_by(data_nasc,ano_nasc) %>% 
-  count(data_nasc,sort = F)
+  count(data_nasc,sort = F) 
   
 
 ggplot(cantidad, aes(x = ano_nasc, y = n, color = ano_nasc)) +
@@ -52,11 +53,21 @@ ggplot(cantidad, aes(x = ano_nasc, y = n, color = ano_nasc)) +
   theme(legend.position = "none")
 
 
+ggplot(cantidad, aes(color = ano_nasc)) +
+  geom_boxplot(x = escmae, ) +
+  labs( x = "Anos",
+        y = "Numero de nascidos vivos")+
+  geom_jitter() +
+  scale_color_brewer(type = "qual", palette = 2) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+
 #--------------------------------------------------------------------#
 #                 Analise por escolaridade                           #
 #--------------------------------------------------------------------#
 
-cantidad <- birth %>% 
+escolaridade <- birth %>% 
   group_by(data_nasc,ano_nasc, escmae) %>% 
   count(data_nasc,sort = F)
 
@@ -73,7 +84,7 @@ ggplot(cantidad, aes(x = escmae, y = n, color = escmae)) +
 #                 Analise por estado civil                           #
 #--------------------------------------------------------------------#
 
-cantidad <- birth %>% 
+estado <- birth %>% 
   group_by(data_nasc,ano_nasc, estcivmae) %>% 
   count(data_nasc,sort = F)
 
@@ -90,7 +101,7 @@ ggplot(cantidad, aes(x = estcivmae, y = n, color = estcivmae)) +
 #                 Analise por raca da mae                            #
 #--------------------------------------------------------------------#
 
-cantidad <- birth %>% 
+raca <- birth %>% 
   group_by(data_nasc,ano_nasc, racacor) %>% 
   count(data_nasc,sort = F)
 
@@ -126,3 +137,9 @@ corrplot(cor(numeric_variables),
          rect.col = 3,            
          rect.lwd = 3,
          addCoef.col = "white")  
+
+
+
+### Pruebas
+
+
