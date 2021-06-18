@@ -136,10 +136,42 @@ corrplot(cor(numeric_variables),
          hclust.method = "ward.D",         
          rect.col = 3,            
          rect.lwd = 3,
-         addCoef.col = "white")  
+         addCoef.col = "black")  
 
 
 
 ### Pruebas
 
+numerica <- birth %>%
+  select(qtdfilvivo:qtdpartces)
 
+pairs.panels(x = numerica,
+             ellipses = FALSE,
+             lm =T , method = "spearman")
+  
+ggplot(birth, aes(x = idademae))+
+  geom_histogram(aes(y=..density..), colour="black", fill="white")+
+  geom_density(fill = "#FF6666", alpha = 0.2)+
+  scale_x_continuous(limits = c(10,46),breaks = seq(0,50, 2))+
+  labs(x = "Idade da mae")+
+  theme_classic()
+
+birth %>% 
+  gather(qtdfilvivo:qtdpartces, key = "Diagnostico", value = "value") %>% 
+  mutate(Diagnostico = as.factor(Diagnostico))-> resp
+
+ggplot(resp, aes(x = reorder(Diagnostico, value), y = value, fill = Diagnostico)) +
+  geom_boxplot(show.legend = FALSE)+
+  theme_classic()+
+  theme(axis.title.x = element_blank())+
+  labs(y = "valores")
+
+
+ggplot(unbalanced, mapping = aes(x = classe, y= n, fill= classe))+
+  geom_col(show.legend = F)+ 
+  scale_y_continuous(breaks = seq(0,600000, 100000),labels = scales::comma)+
+  scale_x_discrete("classe", labels= c("Não prematuro", "Prematuro"))+
+  geom_text(aes(label = n), vjust = -0.5)+
+  labs(y = "contagem")+
+  theme_classic()+
+  theme(axis.title.x = element_blank())
