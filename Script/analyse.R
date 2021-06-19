@@ -138,8 +138,15 @@ corrplot(cor(numeric_variables),
          rect.lwd = 3,
          addCoef.col = "white")  
 
-
-
+install.packages('scales')
+library(scales)
 ### Pruebas
 
-
+corrplot(cor(numeric_variables),
+         method = "circle",       
+         order = "hclust",         
+         hclust.method = "ward.D",
+         addrect = 2,
+         rect.col = 2,            
+         rect.lwd = 2,
+         addCoef.col = "white")
